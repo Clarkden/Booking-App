@@ -10,12 +10,23 @@
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json --watch"
 	},
 	"devDependencies": {
+		"@fullcalendar/common": "^5.11.3",
 		"@sveltejs/adapter-auto": "^1.0.0",
 		"@sveltejs/kit": "^1.0.0",
+		"autoprefixer": "^10.4.13",
+		"postcss": "^8.4.20",
 		"svelte": "^3.54.0",
 		"svelte-check": "^2.9.2",
+		"svelte-fullcalendar": "^2.0.0-beta.0",
+		"svelte-preprocess": "^5.0.0",
+		"tailwindcss": "^3.2.4",
 		"typescript": "^4.9.3",
 		"vite": "^4.0.0"
 	},
-	"type": "module"
+	"type": "module",
+	"dependencies": {
+		"@supabase/auth-helpers-sveltekit": "^0.8.6",
+		"@supabase/supabase-js": "^2.2.0",
+		"luxon": "^3.1.1"
+	}
 }

@@ -1,2 +1,149 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+<script lang="ts">
+  import supabase from "$lib/db";
+  import { onMount } from "svelte";
+
+  export let data: any;
+  $: ({ session } = data);
+  let dropdown: boolean = false;
+  let expandedNavbar: boolean = false;
+  let businesses: any = [];
+  let services: any = [];
+  let loading: boolean = false;
+
+  async function loadData() {
+    try {
+      const { data } = await supabase.from("businesses").select("*").limit(10);
+      businesses = data;
+      console.log(data)
+
+    } catch (error) {
+      if (error instanceof Error) {
+        alert(error.message);
+      }
+    } finally {
+      loading = false;
+    }
+  }
+
+  onMount(() => {
+    loadData();
+  });
+</script>
+
+<div class="md:px-10 pt-5">
+  <nav class="min-h-[64px] h-fit flex flex-col">
+    <div class="flex flex-row items-center justify-between">
+      <div class="w-[300px]">
+        <a href="/" class="uppercase font-bold text-4xl text-emerald-400 w-fit"
+          >Booking App</a
+        >
+      </div>
+      <div />
+      <div class="md:w-[70%] lg:w-[60%] hidden md:block">
+        <div
+          class="flex flex-row items-center rounded-lg border-[1px] overflow-hidden h-[32px] group"
+        >
+          <input
+            type="text"
+            class="w-full rounded-lg px-5 outline-none"
+            placeholder="Search for a business"
+          />
+          <div
+            class="w-[32px] h-full bg-black hover:bg-emerald-400 flex flex-row items-center justify-center cursor-pointer"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-5   h-5 text-white"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+              />
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div
+        class="w-[300px] hidden  md:flex flex-row justify-end items-center gap-4 relative"
+      >
+        {#if session}
+          <a href="/dashboard" class="hover:text-emerald-400">Dashboard</a>
+        {:else}
+          <a
+            href="/auth"
+            class="border-[1px] border-emerald-400 bg-emerald-400 text-white hover:bg-emerald-300/50 hover:text-black px-5 p-1 rounded-[5px]"
+            >Login</a
+          >
+        {/if}
+        <div class="rounded-full w-[32px] h-[32px]">
+          {#if session}
+            <img
+              src={session.user.user_metadata.avatar_url}
+              alt="Profile"
+              class="rounded-full w-[32px] h-[32px] cursor-pointer"
+              on:click={() => (dropdown = !dropdown)}
+              on:keyup={() => {}}
+            />
+          {/if}
+        </div>
+      </div>
+      <div class="md:hidden relative">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-6 w-6 cursor-pointer"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          on:click={() => (expandedNavbar = !expandedNavbar)}
+          on:keyup={() => {}}
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4 6h16M4 12h16M4 18h16"
+          />
+        </svg>
+      </div>
+    </div>
+  </nav>
+
+  {#if loading}
+    <div class="flex items-center justify-start w-full h-fit">
+      <p class="animate-bounce">Loading</p>
+    </div>
+  {:else if businesses.length < 1}
+    <button on:click={loadData}>Load Data</button>
+
+    <div class="flex items-center justify-start w-full h-fit">
+      <p>No businesses found</p>
+    </div>
+  {:else}
+    <div class="flex items-center gap-5">
+      {#each businesses as business (business.id)}
+        <div
+          class="bg-white h-[300px] w-[250px] p-2 flex flex-col justify-between"
+        >
+          <div class="flex flex-col gap-2">
+            <div class='bg-slate-100 h-[150px] relative overflow-hidden'>
+              <img src={business.coverImage} alt={business.name} class="min-h-full absolute top-[-9999px] bottom-[-9999px] left-[-9999px] right-[-9999px] m-auto rounded-lg"/>
+            </div>
+            <p class="font-bold">{business.name}</p>
+            <p>{business.description}</p>
+          </div>
+
+          <div class="flex flex-row">
+            <a class="hover:text-emerald-400" href={`/business/${business.id}`}
+              >Visit</a
+            >
+          </div>
+        </div>
+      {/each}
+    </div>
+  {/if}
+</div>
